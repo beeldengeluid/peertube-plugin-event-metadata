@@ -1,0 +1,44 @@
+{
+  "name": "peertube-plugin-beeldengeluid-event-metadata-importer",
+  "description": "PeerTube plugin Beeld en Geluid event importer",
+  "version": "0.0.1",
+  "author": "Chocobozzz",
+  "bugs": "https://framagit.org/chocobozzz/peertube-plugin-beeldengeluid-event-metadata-importer/issues",
+  "clientScripts": [
+    {
+      "script": "dist/video-edit-client-plugin.js",
+      "scopes": [
+        "video-edit"
+      ]
+    },
+    {
+      "script": "dist/video-watch-client-plugin.js",
+      "scopes": [
+        "video-watch"
+      ]
+    }
+  ],
+  "css": [],
+  "engine": {
+    "peertube": ">=5.1.0"
+  },
+  "homepage": "https://framagit.org/chocobozzz/peertube-plugin-beeldengeluid-event-metadata-importer",
+  "keywords": [
+    "peertube",
+    "plugin"
+  ],
+  "library": "./main.js",
+  "scripts": {
+    "prepare": "npm run build",
+    "build": "node ./scripts/build.js"
+  },
+  "staticDirs": {},
+  "translations": {},
+  "devDependencies": {
+    "esbuild": "^0.17.11"
+  },
+  "dependencies": {
+    "node-fetch": "^2.6.9",
+    "node-html-parser": "^6.1.5"
+  }
+}
