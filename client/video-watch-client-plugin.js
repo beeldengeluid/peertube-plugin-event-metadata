@@ -1,15 +1,37 @@
-function register ({ registerHook }) {
+function register ({ registerHook, peertubeHelpers }) {
+  const { markdownRenderer } = peertubeHelpers
+
+  const markdownToHTML = async (str) => {
+    const result = await markdownRenderer.textMarkdownToHTML(str)
+    if (!result) return result
+
+    return result.replace(/^\s*<p>/, '')
+                 .replace(/<\/p>\s*$/, '')
+  }
+
   registerHook({
     target: 'filter:video-watch.video-plugin-metadata.result',
 
-    handler: (metadata, { video }) => {
+    handler: async (metadata, { video }) => {
       const pluginData = video.pluginData
       if (!pluginData?.eventUrl) return metadata
 
+      let truncatedEventUrl = pluginData.eventUrl
+      if (truncatedEventUrl.length > 100) {
+        truncatedEventUrl = truncatedEventUrl.substring(0, 97) + '...'
+      }
+
       metadata.push({
         label: 'Event URL',
-        safeHTML: `<a target="_blank" rel="noopener noreferrer" href="${pluginData.eventUrl}">${pluginData.eventUrl}</a>`
+        safeHTML: `<a target="_blank" rel="noopener noreferrer" href="${pluginData.eventUrl}">${truncatedEventUrl}</a>`
       })
+
+      if (pluginData.eventSuperEvent) {
+        metadata.push({
+          label: 'Super event',
+          safeHTML: await markdownToHTML(pluginData.eventSuperEvent)
+        })
+      }
 
       if (pluginData.eventStartDate) {
         metadata.push({
@@ -28,21 +50,24 @@ function register ({ registerHook }) {
       if (pluginData.eventLocation) {
         metadata.push({
           label: 'Event location',
-          value: pluginData.eventLocation
+          safeHTML: await markdownToHTML(pluginData.eventLocation)
         })
       }
 
       if (pluginData.eventOrganizer) {
         metadata.push({
           label: 'Event organizer',
-          value: pluginData.eventOrganizer
+          safeHTML: await markdownToHTML(pluginData.eventOrganizer)
         })
       }
 
-      if (Array.isArray(pluginData.eventPerformers)) {
+      if (Array.isArray(pluginData.eventPerformers) && pluginData.eventPerformers.length !== 0) {
+        const promises = pluginData.eventPerformers
+          .map(p => markdownToHTML(p))
+
         metadata.push({
           label: 'Event performers',
-          value: pluginData.eventPerformers.join(', ')
+          safeHTML: (await Promise.all(promises)).join(', ')
         })
       }
 

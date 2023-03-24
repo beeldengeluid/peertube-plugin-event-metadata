@@ -41,6 +41,12 @@ function buildFormInputs (registerVideoField) {
       const videoFormOptions = { type }
 
       registerVideoField({
+        name: 'eventName',
+        label: 'Event name',
+        type: 'input'
+      }, videoFormOptions)
+
+      registerVideoField({
         name: 'eventStartDate',
         label: 'Event start date',
         type: 'input'
@@ -55,19 +61,28 @@ function buildFormInputs (registerVideoField) {
       registerVideoField({
         name: 'eventLocation',
         label: 'Event location',
+        descriptionHTML: 'Markdown is supported',
         type: 'input'
       }, videoFormOptions)
 
       registerVideoField({
         name: 'eventOrganizer',
         label: 'Event organizer',
+        descriptionHTML: 'Markdown is supported',
         type: 'input'
       }, videoFormOptions)
 
       registerVideoField({
         name: 'eventPerformers',
         label: 'Event performers',
-        descriptionHTML: 'Multiple performers are separated by a , character',
+        descriptionHTML: 'Multiple performers are separated by a , character. Markdown is supported',
+        type: 'input'
+      }, videoFormOptions)
+
+      registerVideoField({
+        name: 'eventSuperEvent',
+        label: 'Super event',
+        descriptionHTML: 'Markdown is supported',
         type: 'input'
       }, videoFormOptions)
     }
@@ -136,11 +151,13 @@ function fillForm (options) {
         description: json.description,
         language: json.language,
         pluginData: {
+          eventName: json.name,
           eventStartDate: json.startDate,
           eventEndDate: json.endDate,
           eventLocation: json.location,
           eventOrganizer: json.organizer,
-          eventPerformers: json.performers.join(',')
+          eventPerformers: json.performers.join(','),
+          eventSuperEvent: json.superEvent,
         }
       })
     })

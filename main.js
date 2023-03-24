@@ -1,5 +1,6 @@
 const htmlParser = require('node-html-parser')
 const fetch = require('node-fetch')
+const urlUtils = require('url')
 
 async function register ({
   registerHook,
@@ -17,21 +18,24 @@ async function register ({
     registerHook({
       target: 'action:api.video.updated',
       handler: ({ video, body }) => {
-        console.log(body)
-
         const pluginData = body.pluginData
         if (!pluginData || !pluginData.eventUrl) return
 
         let eventPerformers = []
-        if (Array.isArray(pluginData.eventPerformers)) eventPerformers = pluginData.eventPerformers
-        else if (typeof pluginData.eventPerformers === 'string') eventPerformers = pluginData.eventPerformers.split(',')
+        if (Array.isArray(pluginData.eventPerformers)) {
+          eventPerformers = pluginData.eventPerformers
+        } else if (typeof pluginData.eventPerformers === 'string' && pluginData.eventPerformers) {
+          eventPerformers = pluginData.eventPerformers.split(',')
+        }
 
         const json = {
           eventUrl: pluginData.eventUrl,
+          eventName: pluginData.eventName,
           eventStartDate: pluginData.eventStartDate,
           eventEndDate: pluginData.eventEndDate,
           eventLocation: pluginData.eventLocation,
           eventOrganizer: pluginData.eventOrganizer,
+          eventSuperEvent: pluginData.eventSuperEvent,
           eventPerformers
         }
 
@@ -61,7 +65,7 @@ async function register ({
         if (!video.pluginData) video.pluginData = {}
 
         const result = await storageManager.getData('event-metadata-' + video.uuid)
-        if (result) Object.assign(jsonld, { recordedAt: result.eventUrl })
+        if (result && result.eventUrl) Object.assign(jsonld, { recordedAt: result.eventUrl })
 
         return jsonld
       }
@@ -71,6 +75,20 @@ async function register ({
       target: 'filter:activity-pub.activity.context.build.result',
       handler: jsonld => {
         return jsonld.concat([ { recordedAt: 'https://schema.org/recordedAt' } ])
+      }
+    })
+
+    // JSONLD in client HTML page
+
+    registerHook({
+      target: 'filter:html.client.json-ld.result',
+      handler: async (jsonld, context) => {
+        if (!context || !context.video) return jsonld
+
+        const result = await storageManager.getData('event-metadata-' + context.video.uuid)
+        if (result && result.eventUrl) Object.assign(jsonld, { recordedAt: result.eventUrl })
+
+        return jsonld
       }
     })
   }
@@ -116,13 +134,31 @@ function parseEvent (req, res) {
         startDate: jsonLD.startDate,
         endDate: jsonLD.endDate,
         location: jsonLD.location?.name,
-        organizer: jsonLD.organizer?.name,
+
+        superEvent: jsonLD.superEvent
+          ? toMarkdownUrl(eventUrl, jsonLD.superEvent.name, jsonLD.superEvent.url)
+          : undefined,
+
+        organizer: jsonLD.organizer
+          ? toMarkdownUrl(eventUrl, jsonLD.organizer.name, jsonLD.organizer.url)
+          : undefined,
+
         performers: Array.isArray(jsonLD.performers)
-          ? jsonLD.performers.map(p => p.name)
+          ? jsonLD.performers.map(p => toMarkdownUrl(eventUrl, p.name, p.url))
           : []
       })
     })
     .catch(err => {
       res.status(500).json({ error: err.toString() })
     })
+}
+
+function toMarkdownUrl (webpageUrl, label, url) {
+  if (!url) return label
+
+  const absoluteUrl = url.startsWith('http://') || url.startsWith('https://')
+    ? url
+    : new URL(url, webpageUrl)
+
+  return '[' + label + '](' + absoluteUrl + ')'
 }
