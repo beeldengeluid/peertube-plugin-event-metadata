@@ -59,13 +59,23 @@ async function register ({
     // JSONLD recordedAt
 
     registerHook({
+      target: 'filter:activity-pub.activity.context.build.result',
+      handler: jsonld => {
+        return jsonld.concat([ { recordedAt: 'https://schema.org/recordedAt' } ])
+      }
+    })
+
+
+    registerHook({
       target: 'filter:activity-pub.video.json-ld.build.result',
       handler: async (jsonld, { video }) => {
         if (!video) return video
         if (!video.pluginData) video.pluginData = {}
 
         const result = await storageManager.getData('event-metadata-' + video.uuid)
-        if (result && result.eventUrl) Object.assign(jsonld, { recordedAt: result.eventUrl })
+        if (result && result.eventUrl) {
+          addRecordedAt(jsonld, result)
+        }
 
         return jsonld
       }
@@ -86,7 +96,9 @@ async function register ({
         if (!context || !context.video) return jsonld
 
         const result = await storageManager.getData('event-metadata-' + context.video.uuid)
-        if (result && result.eventUrl) Object.assign(jsonld, { recordedAt: result.eventUrl })
+        if (result && result.eventUrl) {
+          addRecordedAt(jsonld, result)
+        }
 
         return jsonld
       }
@@ -105,6 +117,15 @@ module.exports = {
 
 
 // ---------------------------------------------------------------------------
+
+function addRecordedAt (jsonld, videoData) {
+  Object.assign(jsonld, {
+    recordedAt: {
+      name: videoData.eventName,
+      url: videoData.eventUrl
+    }
+  })
+}
 
 function parseEvent (req, res) {
   const eventUrl = req.body.eventUrl
