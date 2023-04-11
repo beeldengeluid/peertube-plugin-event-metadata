@@ -16,14 +16,9 @@ function register ({ registerHook, peertubeHelpers }) {
       const pluginData = video.pluginData
       if (!pluginData?.eventUrl) return metadata
 
-      let truncatedEventUrl = pluginData.eventUrl
-      if (truncatedEventUrl.length > 100) {
-        truncatedEventUrl = truncatedEventUrl.substring(0, 97) + '...'
-      }
-
       metadata.push({
-        label: 'Event URL',
-        safeHTML: `<a target="_blank" rel="noopener noreferrer" href="${pluginData.eventUrl}">${truncatedEventUrl}</a>`
+        label: 'Event name',
+        safeHTML: `<a target="_blank" rel="noopener noreferrer" href="${pluginData.eventUrl}">${pluginData.eventName}</a>`
       })
 
       if (pluginData.eventSuperEvent) {
