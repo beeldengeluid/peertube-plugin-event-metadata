@@ -1,7 +1,7 @@
 {
   "name": "peertube-plugin-event-metadata",
   "description": "PeerTube plugin to add event data for event videos.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": "Chocobozzz",
   "repository": {
     "type": "git",
