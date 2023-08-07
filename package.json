@@ -25,7 +25,7 @@
   ],
   "css": [],
   "engine": {
-    "peertube": ">=5.1.0"
+    "peertube": ">=5.2.0"
   },
   "homepage": "https://github.com/beeldengeluid/peertube-plugin-event-metadata",
   "keywords": [
