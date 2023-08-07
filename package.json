@@ -1,9 +1,14 @@
 {
-  "name": "peertube-plugin-beeldengeluid-event-metadata-importer",
-  "description": "PeerTube plugin Beeld en Geluid event importer",
-  "version": "0.0.3",
+  "name": "peertube-plugin-event-metadata",
+  "description": "PeerTube plugin to add event data for event videos.",
+  "version": "1.0.0",
   "author": "Chocobozzz",
-  "bugs": "https://framagit.org/chocobozzz/peertube-plugin-beeldengeluid-event-metadata-importer/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/beeldengeluid/peertube-plugin-event-metadata.git"
+  },
+  "license" : "AGPL-3.0",
+  "bugs": "https://github.com/beeldengeluid/peertube-plugin-event-metadata/issues",
   "clientScripts": [
     {
       "script": "dist/video-edit-client-plugin.js",
@@ -22,10 +27,11 @@
   "engine": {
     "peertube": ">=5.1.0"
   },
-  "homepage": "https://framagit.org/chocobozzz/peertube-plugin-beeldengeluid-event-metadata-importer",
+  "homepage": "https://github.com/beeldengeluid/peertube-plugin-event-metadata",
   "keywords": [
     "peertube",
-    "plugin"
+    "plugin",
+    "event-metadata"
   ],
   "library": "./main.js",
   "scripts": {
