@@ -40,9 +40,6 @@
   },
   "staticDirs": {},
   "translations": {},
-  "devDependencies": {
-    "esbuild": "^0.17.11"
-  },
   "dependencies": {
     "node-fetch": "^2.6.9",
     "node-html-parser": "^6.1.5"
